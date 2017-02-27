@@ -1,0 +1,18 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+<CheckBoxPreference
+    android:defaultValue="false"
+    android:key="AutoAnswer"
+    android:textSize="24sp"
+    android:title="是否自动接听？" />
+<CheckBoxPreference
+    android:defaultValue="true"
+    android:key="AutoRecord"
+    android:title="是否自动录音？" />
+<CheckBoxPreference
+    android:defaultValue="false"
+    android:key="AutoFWSMS"
+    android:title="是否转发短信？" />
+
+
+</PreferenceScreen>

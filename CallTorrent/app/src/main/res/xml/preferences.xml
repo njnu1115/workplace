@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="set_features"
+        android:title="功能设置" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="AutoAnswer"
+            android:summary="勾选后自动接听来电"
+            android:title="自动接听" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="AutoRecord"
+            android:summaryOff="打开通话录音"
+            android:summaryOn="关闭通话录音"
+            android:title="通话录音" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="AutoFWSMS"
+            android:summary="转发短息到指定邮箱"
+            android:title="转发短信" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="set_smtp"
+        android:title="SMTP设置" >
+        <EditTextPreference
+            android:dialogTitle="SMTP服务器"
+            android:key="SMTPserver"
+            android:title="SMTP服务器" />
+        <EditTextPreference
+            android:dialogTitle="SMTP用户名"
+            android:key="SMTPusername"
+            android:title="SMTP用户名" />
+        <EditTextPreference
+            android:dialogTitle="SMTP密码"
+            android:key="SMTPpswd"
+            android:password = "true"
+            android:title="SMTP密码"   />
+        <EditTextPreference
+            android:dialogTitle="本机号码"
+            android:key="myPhoneNumber"
+            android:title="本机号码" />
+        <EditTextPreference
+            android:dialogTitle="目标邮箱"
+            android:key="toAddress"
+            android:title="目标邮箱" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:dialogTitle="SMTP服务器"
+        android:key="SMTPserver"
+        android:title="SMTP服务器" />
+    <EditTextPreference
+        android:dialogTitle="SMTP用户名"
+        android:key="SMTPusername"
+        android:title="SMTP用户名" />
+    <EditTextPreference
+        android:dialogTitle="SMTP密码"
+        android:key="SMTPpswd"
+        android:password = "true"
+        android:title="SMTP密码"   />
+    <EditTextPreference
+        android:dialogTitle="本机号码"
+        android:key="myPhoneNumber"
+        android:title="本机号码" />
+    <EditTextPreference
+        android:dialogTitle="目标邮箱"
+        android:key="toAddress"
+        android:title="目标邮箱" />
+</PreferenceScreen>
