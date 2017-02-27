@@ -144,8 +144,18 @@ public class DirectOpActivity extends AppCompatActivity {
 
     public void trigger_command(View view){
         Log.i(TAG, "i clicked the button");
-        mDistoGattCharacteristic_Command.setValue(value[0], BluetoothGattCharacteristic.FORMAT_SINT8, "g");
-        mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command);
+        String str = "g";
+        mDistoGattCharacteristic_Command.setValue(str);
+//        mDistoGattCharacteristic_Command.setValue(103, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+        mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
+        {
+            Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
+        }
+        else
+        {
+            Log.i(TAG, "Disto characteristic write fail" );
+        }
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -159,7 +169,11 @@ public class DirectOpActivity extends AppCompatActivity {
         }
 
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.i(TAG, "Disto characteristic Read:" + characteristic.toString());
+            Log.i(TAG, "Disto characteristic changed:" + characteristic.toString());
+        }
+
+        public void  onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){
+            Log.i(TAG, "Disto characteristic Write status is " + status+" "+characteristic.getValue());
         }
 
         public void onConnectionStateChange(BluetoothGatt mBluetoothGatt, int status, int newState) {
