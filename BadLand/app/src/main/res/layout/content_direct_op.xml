@@ -14,13 +14,30 @@
     tools:showIn="@layout/activity_direct_op">
 
     <Button
-        android:text="Trigger"
+        android:text="g"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_marginStart="119dp"
         android:layout_marginTop="121dp"
-        android:id="@+id/button_trigger"
-        android:onClick="trigger_command" />
+        android:id="@+id/button_trigger_g"
+        android:onClick="trigger_command_g" />
+    <Button
+        android:text="o"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/button_trigger_o"
+        android:onClick="trigger_command_o" />
+    <Button
+        android:text="p"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_trigger_p"
+        android:onClick="trigger_command_p"
+        android:layout_below="@+id/button_trigger_o"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="36dp" />
 </RelativeLayout>
