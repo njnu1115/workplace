@@ -24,6 +24,8 @@ import android.view.View;
 import android.widget.Toast;
 
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -203,13 +205,15 @@ public class DirectOpActivity extends AppCompatActivity {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.i(TAG, "Disto characteristic Read:" + characteristic.getValue().toString());
+                float f = ByteBuffer.wrap(characteristic.getValue()).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                Log.i(TAG, "Disto characteristic Read successful:" + f);
             }
-            Log.i(TAG, "Disto characteristic Read!!:" + characteristic.toString());
+            Log.i(TAG, "Disto characteristic Read but fail " + characteristic.getValue().toString());
         }
 
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.i(TAG, "Disto characteristic changed:" + characteristic.toString());
+            onCharacteristicRead(gatt, characteristic, BluetoothGatt.GATT_SUCCESS);
         }
 
         public void  onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){
