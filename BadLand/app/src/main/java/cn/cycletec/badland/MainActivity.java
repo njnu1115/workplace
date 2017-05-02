@@ -33,10 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private String mDeviceAddress;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
+    DistoAlarmReceiver alarm = new DistoAlarmReceiver();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        alarm.setAlarm(this);
 
 /*        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
