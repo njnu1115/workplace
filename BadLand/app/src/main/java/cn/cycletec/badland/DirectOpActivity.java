@@ -151,12 +151,11 @@ public class DirectOpActivity extends AppCompatActivity {
         if(mDistoGattCharacteristic_Command != null){
             mDistoGattCharacteristic_Command.setValue(sDistoCommandTable[5].getBytes());
         }
-//        mDistoGattCharacteristic_Command.setValue(103, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+
         mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
         {
             Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
-//            mDistoGatt.readCharacteristic(mDistoGattService.getCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)));
         }
         else
         {
@@ -169,12 +168,11 @@ public class DirectOpActivity extends AppCompatActivity {
         if(mDistoGattCharacteristic_Command != null){
             mDistoGattCharacteristic_Command.setValue(sDistoCommandTable[6].getBytes());
         }
-//        mDistoGattCharacteristic_Command.setValue(103, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+
         mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
         {
             Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
-//            mDistoGatt.readCharacteristic(mDistoGattService.getCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)));
         }
         else
         {
@@ -187,12 +185,10 @@ public class DirectOpActivity extends AppCompatActivity {
         if(mDistoGattCharacteristic_Command != null){
             mDistoGattCharacteristic_Command.setValue(sDistoCommandTable[7].getBytes());
         }
-//        mDistoGattCharacteristic_Command.setValue(103, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
         mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
         {
             Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
-//            mDistoGatt.readCharacteristic(mDistoGattService.getCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)));
         }
         else
         {

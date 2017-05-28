@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package cn.cycletec.badland;
 
 import android.app.Service;
@@ -37,16 +21,13 @@ import android.util.Log;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Service for managing connection and data communication with a GATT server hosted on a
- * given Bluetooth LE device.
- */
 public class S910BluetoothService extends Service {
     private final static String TAG = S910BluetoothService.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
+    private BluetoothGattCharacteristic mDistoGattCharacteristic_Command;
     private String mBluetoothDeviceAddress;
     private String DistoAddress;
     private String AlreadyConnectedBluetoothDeviceAddress;
@@ -67,8 +48,6 @@ public class S910BluetoothService extends Service {
     public final static String EXTRA_DATA =
             "cn.cycletec.bluetooth.le.EXTRA_DATA";
 
-    // Implements callback methods for GATT events that the app cares about.  For example,
-    // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -347,5 +326,22 @@ public class S910BluetoothService extends Service {
         if (mBluetoothGatt == null) return null;
 
         return mBluetoothGatt.getServices();
+    }
+
+    public void triggerCommand(byte[] value){
+        Log.i(TAG, "triggering command with value " + value);
+        if(mDistoGattCharacteristic_Command != null){
+            mDistoGattCharacteristic_Command.setValue(value);
+        }
+
+        mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        if(mBluetoothGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
+        {
+            Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
+        }
+        else
+        {
+            Log.i(TAG, "Disto characteristic write fail" );
+        }
     }
 }
