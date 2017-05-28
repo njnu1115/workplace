@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private String mDeviceAddress;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
