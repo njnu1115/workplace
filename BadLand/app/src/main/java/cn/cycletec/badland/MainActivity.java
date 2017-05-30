@@ -1,7 +1,9 @@
 package cn.cycletec.badland;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
@@ -42,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mHandler = new Handler();
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
@@ -79,27 +80,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        Intent gattServiceIntent = new Intent(this, S910BluetoothService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-        //DistoLoop.run();
-        mHandler.post(new Runnable() {
-            @Override
-            public void run () {
-                Log.d("Handlers", "Called on main thread");
-            }
-        });
+        scheduleAlarm();
+
+//        Intent gattServiceIntent = new Intent(this, S910BluetoothService.class);
+//        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
     }
 
-    private Runnable DistoLoop = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            Log.d("Handlers", "Called on main thread");
-//            mS910Service.triggerCommand(DistoGattAttributes.sDistoCommandTable[6].getBytes());
-            mHandler.postDelayed(DistoLoop, 2000);
-        }
-    };
+
+    protected void onDestroy(){
+    super.onDestroy();
+//        unbindService(mServiceConnection);
+    }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -109,16 +101,15 @@ public class MainActivity extends AppCompatActivity {
             if (!mS910Service.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
                 /* Maybe I can try to re-connect again and again */
- //               finish();
+               finish();
             }
             Log.e(TAG, "Service Init Finished");
 
             if(!mS910Service.ScanForDisto()){
                 Log.e(TAG, "Unable to Scan for Disto");
- //               finish();
+               finish();
             }
-            Log.e(TAG, "Scan for Disto Done");
-            DistoLoop.run();
+            Log.i(TAG, "Scan for Disto Done");
         }
 
         @Override
@@ -126,6 +117,17 @@ public class MainActivity extends AppCompatActivity {
             mS910Service = null;
         }
     };
+
+    public void scheduleAlarm() {
+        Intent intent = new Intent(getApplicationContext(), DistoAlarmReceiver.class);
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, DistoAlarmReceiver.REQUEST_CODE,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        long firstMillis = System.currentTimeMillis();
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
+                1000, pIntent);
+        Log.i(TAG, "Alarm Scheduled");
+    }
 }
 
 

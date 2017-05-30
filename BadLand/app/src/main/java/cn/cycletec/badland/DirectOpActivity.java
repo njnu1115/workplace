@@ -49,7 +49,7 @@ public class DirectOpActivity extends AppCompatActivity {
     private BluetoothGattCharacteristic mDistoGattCharacteristic_Command;
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-    private static final String[] sDistoCommandTable = new String[] {"a","b","gi","iv","N00N","g", "o", "p","N02N", "cfm","cfb 0"};
+    private static final String[] sDistoCommandTable = new String[]{"a", "b", "gi", "iv", "N00N", "g", "o", "p", "N02N", "cfm", "cfb 0"};
     private int mConnectionState = STATE_DISCONNECTED;
 
     @Override
@@ -146,74 +146,60 @@ public class DirectOpActivity extends AppCompatActivity {
 //        mDistoGatt.writeCharacteristic(S910TriggerCommand);
     }
 
-    public void trigger_command_g(View view){
+    public void trigger_command_g(View view) {
         Log.i(TAG, "i clicked the button");
-        if(mDistoGattCharacteristic_Command != null){
+        if (mDistoGattCharacteristic_Command != null) {
             mDistoGattCharacteristic_Command.setValue(sDistoCommandTable[5].getBytes());
         }
 
-<<<<<<< HEAD
         mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
-        {
-            Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
-
-//        mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
-        {
-            Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
+        if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
+            Log.i(TAG, "Disto characteristic write successfull " + mDistoGattCharacteristic_Command.getValue());
+        }
+        mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
+            Log.i(TAG, "Disto characteristic write successfull " + mDistoGattCharacteristic_Command.getValue());
             mDistoGatt.readCharacteristic(mDistoGattService.getCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)));
-        }
-        else
-        {
-            Log.i(TAG, "Disto characteristic write fail" );
+        } else {
+            Log.i(TAG, "Disto characteristic write fail");
         }
     }
 
-    public void trigger_command_o(View view){
+    public void trigger_command_o(View view) {
         Log.i(TAG, "i clicked the button");
-        if(mDistoGattCharacteristic_Command != null){
+        if (mDistoGattCharacteristic_Command != null) {
             mDistoGattCharacteristic_Command.setValue(sDistoCommandTable[6].getBytes());
         }
 
         mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
-        {
-            Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
-        }
-        else
-        {
-            Log.i(TAG, "Disto characteristic write fail" );
+        if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
+            Log.i(TAG, "Disto characteristic write successfull " + mDistoGattCharacteristic_Command.getValue());
+        } else {
+            Log.i(TAG, "Disto characteristic write fail");
         }
     }
 
-    public void trigger_command_p(View view){
+    public void trigger_command_p(View view) {
         Log.i(TAG, "i clicked the button P ");
-        if(mDistoGattCharacteristic_Command != null){
+        if (mDistoGattCharacteristic_Command != null) {
             mDistoGattCharacteristic_Command.setValue(sDistoCommandTable[6].getBytes());
         }
 
         mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
-        {
-            Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
-        }
-        else
-        {
-            Log.i(TAG, "Disto characteristic write fail" );
+        if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
+            Log.i(TAG, "Disto characteristic write successfull " + mDistoGattCharacteristic_Command.getValue());
+        } else {
+            Log.i(TAG, "Disto characteristic write fail");
         }
 
-        if(mDistoGattCharacteristic_Command != null){
+        if (mDistoGattCharacteristic_Command != null) {
             mDistoGattCharacteristic_Command.setValue(sDistoCommandTable[5].getBytes());
         }
 
-        if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
-        {
-            Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
-        }
-        else
-        {
-            Log.i(TAG, "Disto characteristic write fail" );
+        if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
+            Log.i(TAG, "Disto characteristic write successfull " + mDistoGattCharacteristic_Command.getValue());
+        } else {
+            Log.i(TAG, "Disto characteristic write fail");
         }
 
         mDistoGatt.readCharacteristic(mDistoGattService.getCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)));
@@ -238,8 +224,8 @@ public class DirectOpActivity extends AppCompatActivity {
 //            onCharacteristicRead(gatt, characteristic, BluetoothGatt.GATT_SUCCESS);
         }
 
-        public void  onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){
-            Log.i(TAG, "Disto characteristic Write status is " + status+" "+characteristic.getValue());
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            Log.i(TAG, "Disto characteristic Write status is " + status + " " + characteristic.getValue());
         }
 
         public void onConnectionStateChange(BluetoothGatt mBluetoothGatt, int status, int newState) {
@@ -273,14 +259,14 @@ public class DirectOpActivity extends AppCompatActivity {
                     Log.i(TAG, "mDistoGattServices found");
                     for (BluetoothGattService gattService : mDistoGattServices) {
                         Log.i(TAG, "Gatt service found " + gattService.getUuid().toString());
-                        if(gattService.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_SERVICE)){
+                        if (gattService.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_SERVICE)) {
                             mDistoGattService = gattService;
                             Log.i(TAG, "mDistoGattService found " + mDistoGattService.getUuid().toString());
                         }
                         final List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-                        for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics){
+                        for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
 //                            Log.i(TAG, "BluetoothGattCharacteristicfound " + gattCharacteristic.getUuid().toString());
-                            if (gattCharacteristic.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND)){
+                            if (gattCharacteristic.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND)) {
                                 Log.i(TAG, "Found the Command");
                                 mDistoGattCharacteristic_Command = gattCharacteristic;
                             }
