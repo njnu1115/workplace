@@ -1,11 +1,11 @@
 package cn.cycletec.badland;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,39 +16,30 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
+public class MainActivity extends Activity {
 
-import java.util.List;
-import java.util.concurrent.RunnableFuture;
-
-public class MainActivity extends AppCompatActivity {
-
-    private final static int REQUEST_ENABLE_BT = 1;
     private final static String TAG = MainActivity.class.getSimpleName();
-    private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler;
-    private static final long SCAN_PERIOD = 10000;
     private S910BluetoothService mS910Service;
     private String mDeviceAddress;
+    private static final int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*1st step: Check whether BLE is supported by this device*/
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
+
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -57,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
-
+        /*2nd step: Check whether Bluetooth is Enabled*/
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
@@ -80,43 +71,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        /* 3rd step: trigger the alarm to do repeat job */
         scheduleAlarm();
-
-//        Intent gattServiceIntent = new Intent(this, S910BluetoothService.class);
-//        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-
     }
 
 
     protected void onDestroy(){
     super.onDestroy();
-//        unbindService(mServiceConnection);
     }
 
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            mS910Service = ((S910BluetoothService.LocalBinder) service).getService();
-            if (!mS910Service.initialize()) {
-                Log.e(TAG, "Unable to initialize Bluetooth");
-                /* Maybe I can try to re-connect again and again */
-               finish();
-            }
-            Log.e(TAG, "Service Init Finished");
-
-            if(!mS910Service.ScanForDisto()){
-                Log.e(TAG, "Unable to Scan for Disto");
-               finish();
-            }
-            Log.i(TAG, "Scan for Disto Done");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mS910Service = null;
-        }
-    };
 
     public void scheduleAlarm() {
         Intent intent = new Intent(getApplicationContext(), DistoAlarmReceiver.class);
@@ -125,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         long firstMillis = System.currentTimeMillis();
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
-                1000, pIntent);
+                10000, pIntent);
         Log.i(TAG, "Alarm Scheduled");
     }
 }

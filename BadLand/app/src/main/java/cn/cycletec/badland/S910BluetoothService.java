@@ -18,7 +18,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class S910BluetoothService extends Service {
@@ -26,11 +29,15 @@ public class S910BluetoothService extends Service {
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothGatt mBluetoothGatt;
+    private BluetoothGatt mDistoGatt;
+    private BluetoothDevice mDistoDevice;
+    private BluetoothGattService mDistoGattService;
+    private List<BluetoothGattService> mDistoGattServices;
     private BluetoothGattCharacteristic mDistoGattCharacteristic_Command;
     private String mBluetoothDeviceAddress;
     private String DistoAddress;
     private String AlreadyConnectedBluetoothDeviceAddress;
+    private String mRemoteDistoAddress;
     private int mConnectionState = STATE_DISCONNECTED;
 
     private static final int STATE_DISCONNECTED = 0;
@@ -49,88 +56,79 @@ public class S910BluetoothService extends Service {
             "cn.cycletec.bluetooth.le.EXTRA_DATA";
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            String intentAction;
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                intentAction = ACTION_GATT_CONNECTED;
-                mConnectionState = STATE_CONNECTED;
-                broadcastUpdate(intentAction);
-                Log.i(TAG, "Connected to GATT server.");
-                // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" +
-                        mBluetoothGatt.discoverServices());
-
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                intentAction = ACTION_GATT_DISCONNECTED;
-                mConnectionState = STATE_DISCONNECTED;
-                Log.i(TAG, "Disconnected from GATT server.");
-                broadcastUpdate(intentAction);
-            }
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
-            } else {
-                Log.w(TAG, "onServicesDiscovered received: " + status);
-            }
-        }
-
-        @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                float f = ByteBuffer.wrap(characteristic.getValue()).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                Log.i(TAG, "Disto characteristic Read successful:" + f);
+//                Log.i(TAG, "Disto characteristic Read UUID is " + characteristic.getUuid().toString());
+            } else {
+                Log.i(TAG, "Disto characteristic Read but fail " + characteristic.getValue().toString());
             }
         }
 
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt,
-                                            BluetoothGattCharacteristic characteristic) {
-            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            Log.i(TAG, "Disto characteristic changed:" + characteristic.toString());
+//            onCharacteristicRead(gatt, characteristic, BluetoothGatt.GATT_SUCCESS);
+        }
+
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            Log.i(TAG, "Disto characteristic Write status is " + status + " " + characteristic.getValue());
+        }
+
+        public void onConnectionStateChange(BluetoothGatt mBluetoothGatt, int status, int newState) {
+            Log.i(TAG, "Disto newState Read:" + newState);
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.i(TAG, "Attempting to start service discovery:" +
+                        mBluetoothGatt.discoverServices());
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+            }
+        }
+
+        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            Log.w(TAG, "Disto descriptor Read:" + descriptor.toString());
+        }
+
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+            Log.i(TAG, "Disto rssi Read:" + rssi);
+        }
+
+        public void onServicesDiscovered(BluetoothGatt mDistoGatt, int status) {
+            Log.i(TAG, "Disto ServicesDiscovered:" + mDistoGatt.toString());
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                mDistoGattServices = mDistoGatt.getServices();
+                if (mDistoGattServices == null) {
+                    Log.i(TAG, "Disto GattServices not found. ");
+                    return;
+                } else if (mDistoGattServices.size() <= 0) {
+                    Log.i(TAG, "Disto GattServices == 0");
+                    return;
+                } else {
+                    Log.i(TAG, "mDistoGattServices found");
+                    for (BluetoothGattService gattService : mDistoGattServices) {
+                        Log.i(TAG, "Gatt service found " + gattService.getUuid().toString());
+                        if (gattService.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_SERVICE)) {
+                            mDistoGattService = gattService;
+                            Log.i(TAG, "mDistoGattService found " + mDistoGattService.getUuid().toString());
+                        }
+                        final List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+                        for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+//                            Log.i(TAG, "BluetoothGattCharacteristicfound " + gattCharacteristic.getUuid().toString());
+                            if (gattCharacteristic.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND)) {
+                                Log.i(TAG, "Found the Command");
+                                mDistoGattCharacteristic_Command = gattCharacteristic;
+                            }
+                        }
+                    }
+                }
+            } else {
+                Log.w(TAG, "onServicesDiscovered received: " + status);
+            }
         }
     };
 
-    private void broadcastUpdate(final String action) {
-        final Intent intent = new Intent(action);
-        sendBroadcast(intent);
-    }
 
-    private void broadcastUpdate(final String action,
-                                 final BluetoothGattCharacteristic characteristic) {
-        final Intent intent = new Intent(action);
-
-        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
-        // carried out as per profile specifications:
-        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-        if (DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND.equals(characteristic.getUuid())) {
-            int flag = characteristic.getProperties();
-            int format = -1;
-            if ((flag & 0x01) != 0) {
-                format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                Log.d(TAG, "Heart rate format UINT16.");
-            } else {
-                format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                Log.d(TAG, "Heart rate format UINT8.");
-            }
-            final int heartRate = characteristic.getIntValue(format, 1);
-            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0) {
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-            }
-        }
-        sendBroadcast(intent);
-    }
 
     public class LocalBinder extends Binder {
         S910BluetoothService getService() {
@@ -159,9 +157,8 @@ public class S910BluetoothService extends Service {
      *
      * @return Return true if the initialization is successful.
      */
-    public boolean initialize() {
-        // For API level 18 and above, get a reference to BluetoothAdapter through
-        // BluetoothManager.
+    public boolean DistoInitialize() {
+
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager == null) {
@@ -175,11 +172,38 @@ public class S910BluetoothService extends Service {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return false;
         }
+        /* Try to find at least one Disto in paired BLE devices.*/
+        if(!ScanForDisto()){
+            return false;
+        }
+
+        if (mRemoteDistoAddress != null) {
+            mDistoDevice = mBluetoothAdapter.getRemoteDevice(mRemoteDistoAddress);
+        } else {
+            Log.i(TAG, "DISTO Pair Not Found");
+        }
+
+        if (mDistoDevice != null) {
+            mDistoGatt = mDistoDevice.connectGatt(this, false, mGattCallback);
+        } else {
+            Log.i(TAG, "Disto Device not found.  Unable to connect.");
+        }
+
+        if (mDistoGatt != null) {
+            if (mDistoGatt.discoverServices()) {
+                mDistoGattServices = mDistoGatt.getServices();
+                Log.i(TAG, "There are " + mDistoGattServices.size() + " services been found");
+            } else {
+                Log.i(TAG, "Discover Services Failed");
+            }
+        } else {
+            Log.i(TAG, "Disto Gatt not found. unable to connect.");
+        }
 
         return true;
     }
 
-    /*Scan all the remote Bluetooth devices, looking for the name started with "DISTO"
+    /*Scan all the paired(not remote) Bluetooth devices, looking for the name started with "DISTO"
     * Will deal with multi "DISTO"s later.
     * */
     public boolean ScanForDisto(){
@@ -187,68 +211,32 @@ public class S910BluetoothService extends Service {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return false;
         }else{
-            mBluetoothAdapter.getBluetoothLeScanner().startScan(mLeScanCallback);
+            final Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice mRemoteBluetoothDevice : pairedDevices) {
+                    if (mRemoteBluetoothDevice.getName().contains("DISTO")) {
+                        mRemoteDistoAddress = mRemoteBluetoothDevice.getAddress();
+                        Log.i(TAG, "DISTO Pair Found, address is " + mRemoteDistoAddress);
+                    } else {
+                        Log.i(TAG, mRemoteBluetoothDevice.getAddress());
+                    }
+                }
+            }
             return true;
         }
     }
 
-    private ScanCallback mLeScanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            Log.d(TAG, "Device name is:" + result.getDevice().getName() + "Device address is:" + result.getDevice().getAddress());
-            if (result.getDevice().getName() != null && result.getDevice().getName().contains("DISTO")) {
-                Log.d(TAG, "I find the S910! Type is " + result.getDevice().getType());
-                DistoAddress = result.getDevice().getAddress();
-                mBluetoothAdapter.getBluetoothLeScanner().stopScan(mLeScanCallback);
-                connect(DistoAddress);
-            }
-        }
-        @Override
-        public void onScanFailed(int errorCode) {
-            Log.d(TAG, "Scan Failed");
-        }
-    };
+    public String getRemoteDistoAddress(){
+        return mRemoteDistoAddress;
+    }
 
-
-    /**
-     * Connects to the GATT server hosted on the Bluetooth LE device.
-     *
-     * @param address The device address of the destination device.
-     *
-     * @return Return true if the connection is initiated successfully. The connection result
-     *         is reported asynchronously through the
-     *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     *         callback.
-     */
     public boolean connect(final String address) {
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
 
-        // Previously connected device.  Try to reconnect.
-        if (AlreadyConnectedBluetoothDeviceAddress != null && address.equals(AlreadyConnectedBluetoothDeviceAddress)
-                && mBluetoothGatt != null) {
-            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-            if (mBluetoothGatt.connect()) {
-                mConnectionState = STATE_CONNECTING;
-                return true;
-            } else {
-                return false;
-            }
-        }
 
-        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        if (device == null) {
-            Log.w(TAG, "Device not found.  Unable to connect.");
-            return false;
-        }
-        // We want to directly connect to the device, so we are setting the autoConnect
-        // parameter to false.
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
-        Log.d(TAG, "Trying to create a new connection.");
-        AlreadyConnectedBluetoothDeviceAddress = address;
-        mConnectionState = STATE_CONNECTING;
         return true;
     }
 
@@ -259,11 +247,11 @@ public class S910BluetoothService extends Service {
      * callback.
      */
     public void disconnect() {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+        if (mBluetoothAdapter == null || mDistoGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.disconnect();
+        mDistoGatt.disconnect();
     }
 
     /**
@@ -271,11 +259,11 @@ public class S910BluetoothService extends Service {
      * released properly.
      */
     public void close() {
-        if (mBluetoothGatt == null) {
+        if (mDistoGatt == null) {
             return;
         }
-        mBluetoothGatt.close();
-        mBluetoothGatt = null;
+        mDistoGatt.close();
+        mDistoGatt = null;
     }
 
     /**
@@ -286,11 +274,11 @@ public class S910BluetoothService extends Service {
      * @param characteristic The characteristic to read from.
      */
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+        if (mBluetoothAdapter == null || mDistoGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.readCharacteristic(characteristic);
+        mDistoGatt.readCharacteristic(characteristic);
     }
 
     /**
@@ -301,18 +289,18 @@ public class S910BluetoothService extends Service {
      */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+        if (mBluetoothAdapter == null || mDistoGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        mDistoGatt.setCharacteristicNotification(characteristic, enabled);
 
         // This is specific to Heart Rate Measurement.
         if (DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mBluetoothGatt.writeDescriptor(descriptor);
+            mDistoGatt.writeDescriptor(descriptor);
         }
     }
 
@@ -323,25 +311,38 @@ public class S910BluetoothService extends Service {
      * @return A {@code List} of supported services.
      */
     public List<BluetoothGattService> getSupportedGattServices() {
-        if (mBluetoothGatt == null) return null;
+        if (mDistoGatt == null) return null;
 
-        return mBluetoothGatt.getServices();
+        return mDistoGatt.getServices();
     }
 
-    public void triggerCommand(byte[] value){
-        Log.i(TAG, "triggering command with value " + value);
-        if(mDistoGattCharacteristic_Command != null){
-            mDistoGattCharacteristic_Command.setValue(value);
+
+    /* The one-in-all call to perform one measure*/
+    public void Trigger(){
+        if(DistoInitialize() != true){
+            return;
         }
 
-        mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        if(mBluetoothGatt.writeCharacteristic(mDistoGattCharacteristic_Command))
-        {
-            Log.i(TAG, "Disto characteristic write successfull "+mDistoGattCharacteristic_Command.getValue());
+        readCharacteristic(mDistoGattService.getCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)));
+
+        if (mDistoGattCharacteristic_Command != null) {
+            mDistoGattCharacteristic_Command.setValue(DistoGattAttributes.sDistoCommandTable[6].getBytes());
         }
-        else
-        {
-            Log.i(TAG, "Disto characteristic write fail" );
+
+        if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
+            Log.i(TAG, "Disto characteristic write successfull " + mDistoGattCharacteristic_Command.getValue());
+        } else {
+            Log.i(TAG, "Disto characteristic write fail");
+        }
+
+        if (mDistoGattCharacteristic_Command != null) {
+            mDistoGattCharacteristic_Command.setValue(DistoGattAttributes.sDistoCommandTable[5].getBytes());
+        }
+
+        if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
+            Log.i(TAG, "Disto characteristic write successfull " + mDistoGattCharacteristic_Command.getValue());
+        } else {
+            Log.i(TAG, "Disto characteristic write fail");
         }
     }
 }
