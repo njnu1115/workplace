@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
         long firstMillis = System.currentTimeMillis();
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
-                10000, pIntent);
+                15000, pIntent);
         Log.i(TAG, "Alarm Scheduled");
     }
 }

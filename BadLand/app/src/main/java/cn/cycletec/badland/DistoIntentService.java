@@ -28,7 +28,7 @@ public class DistoIntentService extends IntentService {
 
     private BluetoothDevice mDistoDevice;
     private BluetoothGatt mDistoGatt;
-    private BluetoothGattCharacteristic mDistoGattChar_DISTANCE;
+    private BluetoothGattCharacteristic mDistoGattCharacteristic_DISTANCE = new BluetoothGattCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE),PROPERTY_WRITE_NO_RESPONSE, 0);
     private BluetoothGattCharacteristic mDistoGattCharacteristic_Command = new BluetoothGattCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND),PROPERTY_WRITE_NO_RESPONSE, 0 );
     private BluetoothGattDescriptor mDistoGattDescriptor;
     private BluetoothGattService mDistoGattService;
@@ -88,7 +88,15 @@ public class DistoIntentService extends IntentService {
             Log.i(TAG, "Disto Gatt not found. unable to connect.");
             return;
         }
-
+        if (mDistoGattCharacteristic_DISTANCE != null){
+            if(mDistoGatt.readCharacteristic(mDistoGattCharacteristic_DISTANCE)){
+                Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read successfully");
+            }else{
+                Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read failed");
+            }
+        }else{
+            Log.i(TAG, "mDistoGattCharacteristic_DISTANCE is NULL NULL!!!!");
+        }
         if (mDistoGattCharacteristic_Command != null) {
             mDistoGattCharacteristic_Command.setValue(DistoGattAttributes.sDistoCommandTable[5].getBytes());
             mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
@@ -97,6 +105,16 @@ public class DistoIntentService extends IntentService {
         }
         if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
             Log.i(TAG, "Disto characteristic write successfull ");
+        }
+        /*read again*/
+        if (mDistoGattCharacteristic_DISTANCE != null){
+            if(mDistoGatt.readCharacteristic(mDistoGattCharacteristic_DISTANCE)){
+                Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read successfully");
+            }else{
+                Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read failed");
+            }
+        }else{
+            Log.i(TAG, "mDistoGattCharacteristic_DISTANCE is NULL NULL!!!!");
         }
     }
 
