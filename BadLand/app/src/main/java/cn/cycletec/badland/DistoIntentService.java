@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_INDICATE;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE;
 
 
@@ -28,8 +30,8 @@ public class DistoIntentService extends IntentService {
 
     private BluetoothDevice mDistoDevice;
     private BluetoothGatt mDistoGatt;
-    private BluetoothGattCharacteristic mDistoGattCharacteristic_DISTANCE = new BluetoothGattCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE),PROPERTY_WRITE_NO_RESPONSE, 0);
-    private BluetoothGattCharacteristic mDistoGattCharacteristic_Command = new BluetoothGattCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND),PROPERTY_WRITE_NO_RESPONSE, 0 );
+    private BluetoothGattCharacteristic mDistoGattCharacteristic_DISTANCE;
+    private BluetoothGattCharacteristic mDistoGattCharacteristic_Command;
     private BluetoothGattDescriptor mDistoGattDescriptor;
     private BluetoothGattService mDistoGattService;
     private List<BluetoothGattService> mDistoGattServices;
@@ -80,41 +82,13 @@ public class DistoIntentService extends IntentService {
         if (mDistoGatt != null) {
             if (mDistoGatt.discoverServices()) {
                 mDistoGattServices = mDistoGatt.getServices();
-                Log.i(TAG, "There are " + mDistoGattServices.size() + " services been found");
+//                Log.i(TAG, "There are " + mDistoGattServices.size() + " services been found");
             } else {
                 Log.i(TAG, "Discover Services Failed");
             }
         } else {
             Log.i(TAG, "Disto Gatt not found. unable to connect.");
             return;
-        }
-        if (mDistoGattCharacteristic_DISTANCE != null){
-            if(mDistoGatt.readCharacteristic(mDistoGattCharacteristic_DISTANCE)){
-                Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read successfully");
-            }else{
-                Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read failed");
-            }
-        }else{
-            Log.i(TAG, "mDistoGattCharacteristic_DISTANCE is NULL NULL!!!!");
-        }
-        if (mDistoGattCharacteristic_Command != null) {
-            mDistoGattCharacteristic_Command.setValue(DistoGattAttributes.sDistoCommandTable[5].getBytes());
-            mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        }else{
-            Log.i(TAG, "mDistoGattCharacteristic_Command is NULL NULL!!!!");
-        }
-        if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
-            Log.i(TAG, "Disto characteristic write successfull ");
-        }
-        /*read again*/
-        if (mDistoGattCharacteristic_DISTANCE != null){
-            if(mDistoGatt.readCharacteristic(mDistoGattCharacteristic_DISTANCE)){
-                Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read successfully");
-            }else{
-                Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read failed");
-            }
-        }else{
-            Log.i(TAG, "mDistoGattCharacteristic_DISTANCE is NULL NULL!!!!");
         }
     }
 
@@ -165,7 +139,7 @@ public class DistoIntentService extends IntentService {
                 } else {
                     Log.i(TAG, "mDistoGattServices found");
                     for (BluetoothGattService gattService : mDistoGattServices) {
-                        Log.i(TAG, "Gatt service found " + gattService.getUuid().toString());
+//                        Log.i(TAG, "Gatt service found " + gattService.getUuid().toString());
                         if (gattService.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_SERVICE)) {
                             mDistoGattService = gattService;
                             Log.i(TAG, "mDistoGattService found " + mDistoGattService.getUuid().toString());
@@ -173,9 +147,50 @@ public class DistoIntentService extends IntentService {
                         final List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
                         for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
 //                            Log.i(TAG, "BluetoothGattCharacteristicfound " + gattCharacteristic.getUuid().toString());
+
+                            if (gattCharacteristic.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)) {
+                                Log.i(TAG, "Found the Distance, Uuid is " +
+                                        gattCharacteristic.getUuid().toString()+ " Propertis is "+
+                                        gattCharacteristic.getProperties()+" Permission is "+
+                                        gattCharacteristic.getPermissions() + " GattService is " +
+                                        gattService.getUuid().toString());
+                                mDistoGattCharacteristic_DISTANCE = gattCharacteristic;
+
+                                /* Open Notification Locally*/
+                                mDistoGatt.setCharacteristicNotification(mDistoGattCharacteristic_DISTANCE, true);
+
+                                /* Open Notification Remotely*/
+                                BluetoothGattDescriptor descriptor = mDistoGattCharacteristic_DISTANCE.getDescriptor(UUID.fromString(DistoGattAttributes.UUID_DISTO_DESCRIPTOR));
+                                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                                if(mDistoGatt.writeDescriptor(descriptor)){
+                                    Log.i(TAG, "Descriptor update successful");
+                                }else{
+                                    Log.i(TAG, "Descriptor update Failed");
+                                }
+
+                                /* read distance */
+                                if(mDistoGatt.readCharacteristic(mDistoGattCharacteristic_DISTANCE)){
+                                    Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read successfully");
+                                }else{
+                                    Log.i(TAG, "mDistoGattCharacteristic_DISTANCE read failed");
+                                }
+                            }
+
                             if (gattCharacteristic.getUuid().toString().equals(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND)) {
-                                Log.i(TAG, "Found the Command, Uuid is " + gattCharacteristic.getUuid().toString()+" Propertis is "+gattCharacteristic.getProperties()+" Permission is "+gattCharacteristic.getPermissions());
+                                Log.i(TAG, "Found the Command, Uuid is " +
+                                        gattCharacteristic.getUuid().toString()+" Propertis is "+
+                                        gattCharacteristic.getProperties()+" Permission is "+
+                                        gattCharacteristic.getPermissions() + " GattService is " +
+                                        gattService.getUuid().toString());
                                 mDistoGattCharacteristic_Command = gattCharacteristic;
+                                mDistoGattCharacteristic_Command.setValue(DistoGattAttributes.sDistoCommandTable[5].getBytes());
+                                mDistoGattCharacteristic_Command.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+                                /* write command and trigger a measure */
+                                if (mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)) {
+                                    Log.i(TAG, "Disto characteristic write successfull ");
+                                }else{
+                                    Log.i(TAG, "Disto characteristic write failed ");
+                                }
                             }
                         }
                     }
