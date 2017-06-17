@@ -10,7 +10,6 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
@@ -25,25 +24,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class S910BluetoothService extends Service {
-    private final static String TAG = S910BluetoothService.class.getSimpleName();
-
-    private BluetoothManager mBluetoothManager;
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothGatt mDistoGatt;
-    private BluetoothDevice mDistoDevice;
-    private BluetoothGattService mDistoGattService;
-    private List<BluetoothGattService> mDistoGattServices;
-    private BluetoothGattCharacteristic mDistoGattCharacteristic_Command;
-    private String mBluetoothDeviceAddress;
-    private String DistoAddress;
-    private String AlreadyConnectedBluetoothDeviceAddress;
-    private String mRemoteDistoAddress;
-    private int mConnectionState = STATE_DISCONNECTED;
-
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
-
     public final static String ACTION_GATT_CONNECTED =
             "cn.cycletec.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
@@ -54,7 +34,18 @@ public class S910BluetoothService extends Service {
             "cn.cycletec.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "cn.cycletec.bluetooth.le.EXTRA_DATA";
-
+    private final static String TAG = S910BluetoothService.class.getSimpleName();
+    private static final int STATE_DISCONNECTED = 0;
+    private static final int STATE_CONNECTING = 1;
+    private static final int STATE_CONNECTED = 2;
+    private final IBinder mBinder = new LocalBinder();
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothGatt mDistoGatt;
+    private BluetoothDevice mDistoDevice;
+    private BluetoothGattService mDistoGattService;
+    private List<BluetoothGattService> mDistoGattServices;
+    private BluetoothGattCharacteristic mDistoGattCharacteristic_Command;
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
@@ -127,14 +118,22 @@ public class S910BluetoothService extends Service {
             }
         }
     };
-
-
-
-    public class LocalBinder extends Binder {
-        S910BluetoothService getService() {
-            return S910BluetoothService.this;
-        }
-    }
+    private String mBluetoothDeviceAddress;
+    private String DistoAddress;
+    private String AlreadyConnectedBluetoothDeviceAddress;
+    private String mRemoteDistoAddress;
+    private int mConnectionState = STATE_DISCONNECTED;
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+                    if (device.getName().contains("DISTO")) {
+                        Log.i(TAG, "DISTO Scanned, address is " + device.getAddress());
+                        device.createBond();
+                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    }
+                }
+            };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -149,8 +148,6 @@ public class S910BluetoothService extends Service {
         close();
         return super.onUnbind(intent);
     }
-
-    private final IBinder mBinder = new LocalBinder();
 
     /**
      * Initializes a reference to the local Bluetooth adapter.
@@ -172,8 +169,11 @@ public class S910BluetoothService extends Service {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return false;
         }
+
+        ScanForDisto();
         /* Try to find at least one Disto in paired BLE devices.*/
-        if(!ScanForDisto()){
+        if (!FindPairedDisto()) {
+            Log.e(TAG, "Unable to find a paired DISTO device");
             return false;
         }
 
@@ -203,14 +203,23 @@ public class S910BluetoothService extends Service {
         return true;
     }
 
+    /*Scan for remote BLE devices, looking for name containing DISTO */
+    public boolean ScanForDisto() {
+        if (mBluetoothAdapter != null) {
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+            return true;
+        }
+        return false;
+    }
+
     /*Scan all the paired(not remote) Bluetooth devices, looking for the name started with "DISTO"
     * Will deal with multi "DISTO"s later.
     * */
-    public boolean ScanForDisto(){
+    public boolean FindPairedDisto() {
         if (mBluetoothAdapter == null) {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return false;
-        }else{
+        } else {
             final Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
             if (pairedDevices.size() > 0) {
                 for (BluetoothDevice mRemoteBluetoothDevice : pairedDevices) {
@@ -226,7 +235,7 @@ public class S910BluetoothService extends Service {
         }
     }
 
-    public String getRemoteDistoAddress(){
+    public String getRemoteDistoAddress() {
         return mRemoteDistoAddress;
     }
 
@@ -236,7 +245,29 @@ public class S910BluetoothService extends Service {
             return false;
         }
 
+        // Previously connected device.  Try to reconnect.
+        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
+                && mDistoGatt != null) {
+            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
+            if (mDistoGatt.connect()) {
+                mConnectionState = STATE_CONNECTING;
+                return true;
+            } else {
+                return false;
+            }
+        }
 
+        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        if (device == null) {
+            Log.w(TAG, "Device not found.  Unable to connect.");
+            return false;
+        }
+        // We want to directly connect to the device, so we are setting the autoConnect
+        // parameter to false.
+        mDistoGatt = device.connectGatt(this, false, mGattCallback);
+        Log.d(TAG, "Trying to create a new connection.");
+        mBluetoothDeviceAddress = address;
+        mConnectionState = STATE_CONNECTING;
         return true;
     }
 
@@ -285,7 +316,7 @@ public class S910BluetoothService extends Service {
      * Enables or disables notification on a give characteristic.
      *
      * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
+     * @param enabled        If true, enable notification.  False otherwise.
      */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
@@ -316,10 +347,9 @@ public class S910BluetoothService extends Service {
         return mDistoGatt.getServices();
     }
 
-
     /* The one-in-all call to perform one measure*/
-    public void Trigger(){
-        if(DistoInitialize() != true){
+    public void Trigger() {
+        if (DistoInitialize() != true) {
             return;
         }
 
@@ -343,6 +373,12 @@ public class S910BluetoothService extends Service {
             Log.i(TAG, "Disto characteristic write successfull " + mDistoGattCharacteristic_Command.getValue());
         } else {
             Log.i(TAG, "Disto characteristic write fail");
+        }
+    }
+
+    public class LocalBinder extends Binder {
+        S910BluetoothService getService() {
+            return S910BluetoothService.this;
         }
     }
 }

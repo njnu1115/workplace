@@ -13,11 +13,11 @@ public class DistoAlarmReceiver extends BroadcastReceiver {
     // Triggered by the Alarm periodically (starts the service to run task)
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "Don't panik but your time is up!!!!.",
+        Toast.makeText(context, "I am running again",
                 Toast.LENGTH_LONG).show();
         Intent i = new Intent(context, DistoIntentService.class);
-        i.putExtra("foo", "bar");
+        final String mDistoAddress = intent.getStringExtra("DistoAddress");
+        i.putExtra("DistoAddress", mDistoAddress);
         context.startService(i);
-        Log.i("DistoAlarmReceiver", "Alarm Received");
     }
 }

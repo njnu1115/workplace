@@ -14,9 +14,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,15 +24,35 @@ public class MainActivity extends Activity {
 
     private final static String TAG = MainActivity.class.getSimpleName();
     private BluetoothAdapter mBluetoothAdapter;
-    private S910BluetoothService mS910Service;
-    private String mDeviceAddress;
+    private String DistoDeviceAddress;
+    private boolean mScanning;
+    private Handler mHandler;
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    private static final long SCAN_PERIOD = 10000;
+
+    private S910BluetoothService mS910Service;
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mS910Service = ((S910BluetoothService.LocalBinder) service).getService();
+            if (!mS910Service.DistoInitialize()) {
+                Log.e(TAG, "Unable to initialize Bluetooth");
+                finish();
+            }
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mS910Service = null;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         /*1st step: Check whether BLE is supported by this device*/
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -48,6 +68,7 @@ public class MainActivity extends Activity {
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
+
         /*2nd step: Check whether Bluetooth is Enabled*/
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -71,14 +92,16 @@ public class MainActivity extends Activity {
             }
         }
 
+
         /* 3rd step: trigger the alarm to do repeat job */
         scheduleAlarm();
     }
 
 
     protected void onDestroy(){
-    super.onDestroy();
+        super.onDestroy();
     }
+
 
 
     public void scheduleAlarm() {
