@@ -176,9 +176,7 @@ public class DeviceScanActivity extends ListActivity {
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
                 15000, pIntent);
         Log.i(TAG, "Alarm Scheduled");
-//        final Intent intent = new Intent(this, DeviceControlActivity.class);
-//        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-//        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
