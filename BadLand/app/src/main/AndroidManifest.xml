@@ -18,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Holo.Light">
         <activity
-            android:name=".DeviceScanActivity"
+            android:name=".MainActivity"
             android:label="@string/title_activity_main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

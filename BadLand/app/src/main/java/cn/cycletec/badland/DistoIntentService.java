@@ -25,6 +25,7 @@ public class DistoIntentService extends IntentService {
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
+    private int DistoCounter = 0;
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 
         public void onCharacteristicRead(BluetoothGatt gatt,
@@ -99,7 +100,8 @@ public class DistoIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         String mDistoAddress = intent.getStringExtra("DistoAddress");
-        Log.i(TAG, "the address get from intent is " + mDistoAddress);
+        Log.i(TAG, "the address get from intent is " + mDistoAddress + "and the count is" + DistoCounter);
+        DistoCounter++;
         if (!initialize()) {
             Log.i(TAG, "initialize() failed");
             return;
