@@ -21,7 +21,7 @@ public class DistoGattAttributes {
     public static String UUID_DISTO_CHARACTERISTIC_STATE_RESPONSE =                     "3ab1010A-f831-4395-b29d-570977d5bf94";
     public static String UUID_DISTO_DESCRIPTOR=                                         "00002902-0000-1000-8000-00805f9b34fb";
     public static String[] sDistoCommandTable = new String[] {"a","b","gi","iv","N00N","g", "o", "p","N02N", "cfm","cfb 0"};
-
+    public static String S910Address = "CC:7E:4B:90:0F:5D";
     static {
         //Services.
         attributes.put(UUID_DISTO_SERVICE, "DISTO SERVICE");

@@ -8,15 +8,18 @@ import android.widget.Toast;
 
 public class DistoAlarmReceiver extends BroadcastReceiver {
     public static final int REQUEST_CODE = 12345;
+    private final static String TAG = DistoAlarmReceiver.class.getSimpleName();
+
 
     // Triggered by the Alarm periodically (starts the service to run task)
     @Override
     public void onReceive(Context context, Intent intent) {
+//        final String mDistoAddress = intent.getStringExtra("DistoAddress");
         Toast.makeText(context, "I am running again",
                 Toast.LENGTH_LONG).show();
+        Log.i("DistoAlarmReceiver", "Alarm Received");
+
         Intent i = new Intent(context, DistoIntentService.class);
-        final String mDistoAddress = intent.getStringExtra("DistoAddress");
-        i.putExtra("DistoAddress", mDistoAddress);
         context.startService(i);
     }
 }

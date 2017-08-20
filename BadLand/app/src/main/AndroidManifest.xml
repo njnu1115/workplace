@@ -33,7 +33,9 @@
         <service
             android:name=".DistoIntentService"
             android:exported="false" />
-
+        <service
+            android:name=".S910BluetoothService"
+            android:exported="false" />
     </application>
 
 </manifest>

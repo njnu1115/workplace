@@ -17,6 +17,8 @@ import android.util.Log;
 import java.util.List;
 import java.util.UUID;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 
 public class DistoIntentService extends IntentService {
     public static final String TAG = "DistoIntentService";
@@ -47,6 +49,8 @@ public class DistoIntentService extends IntentService {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBluetoothLeService = ((S910BluetoothService.LocalBinder) service).getService();
+            Log.i(TAG, "onServiceConnected");
+            mBluetoothLeService.Trigger();
         }
 
         @Override
@@ -62,22 +66,29 @@ public class DistoIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String mDistoAddress = intent.getStringExtra("DistoAddress");
-        Log.i(TAG, "the address get from intent is " + mDistoAddress + "and the count is" + DistoCounter);
+//        String mDistoAddress = intent.getStringExtra("DistoAddress");
+//        Log.i(TAG, "the address get from intent is " + mDistoAddress + " and the count is " + DistoCounter);
         //add the command here
+        Intent S910ServiceIntent = new Intent(this, S910BluetoothService.class);
+        if(bindService(S910ServiceIntent, mServiceConnection, BIND_AUTO_CREATE)){
+            Log.i(TAG,"bind success");
+//            mBluetoothLeService.Trigger();
+        }else{
+            Log.i(TAG,"bind failed");
+        }
     }
 
     @Override
     public void onCreate(){
         super.onCreate();
-        Intent S910ServiceIntent = new Intent(this, S910BluetoothService.class);
-        bindService(S910ServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+        Log.i(TAG, "Created");
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
         unbindService(mServiceConnection);
+        Log.i(TAG, "Destroyed");
     }
 
 

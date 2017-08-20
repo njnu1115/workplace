@@ -1,5 +1,8 @@
 package cn.cycletec.badland;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -15,13 +18,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
+import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_WRITE;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE;
 
 public class S910BluetoothService extends Service {
     public final static String ACTION_GATT_CONNECTED =
@@ -34,10 +44,13 @@ public class S910BluetoothService extends Service {
             "cn.cycletec.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "cn.cycletec.bluetooth.le.EXTRA_DATA";
+
     private final static String TAG = S910BluetoothService.class.getSimpleName();
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
+    private static int FOREGROUND_ID=1338;
+    private int counter = 0;
     private final IBinder mBinder = new LocalBinder();
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -45,7 +58,10 @@ public class S910BluetoothService extends Service {
     private BluetoothDevice mDistoDevice;
     private BluetoothGattService mDistoGattService;
     private List<BluetoothGattService> mDistoGattServices;
-    private BluetoothGattCharacteristic mDistoGattCharacteristic_Command;
+    private BluetoothGattCharacteristic mDistoGattChar_DISTANCE = new BluetoothGattCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE), PROPERTY_READ, PERMISSION_READ);
+    private BluetoothGattCharacteristic mDistoGattCharacteristic_Command = new BluetoothGattCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_COMMAND), PROPERTY_WRITE_NO_RESPONSE, PERMISSION_WRITE);
+
+
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
@@ -123,6 +139,9 @@ public class S910BluetoothService extends Service {
     private String AlreadyConnectedBluetoothDeviceAddress;
     private String mRemoteDistoAddress;
     private int mConnectionState = STATE_DISCONNECTED;
+    private NotificationManager mNM;
+    private Method mStartForeground;
+    private Method mStopForeground;
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
                 @Override
@@ -137,9 +156,33 @@ public class S910BluetoothService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.i(TAG, "onBind");
         return mBinder;
     }
 
+    @Override
+    public void onCreate(){
+        Log.i(TAG, "Service Create");
+        super.onCreate();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
+
+        Notification notification = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("My Awesome App")
+                .setContentText("Doing some work...")
+                .setContentIntent(pendingIntent).build();
+
+        startForeground(1337, notification);
+    }
+
+    public void onStart(Intent intent, int startId)
+    {
+        super.onStart(intent, startId);
+        Log.i(TAG, "Started and startid is "+startId);
+    }
     @Override
     public boolean onUnbind(Intent intent) {
         // After using a given device, you should make sure that BluetoothGatt.close() is called
@@ -155,6 +198,8 @@ public class S910BluetoothService extends Service {
      * @return Return true if the initialization is successful.
      */
     public boolean DistoInitialize() {
+        Log.i(TAG, "Counter is "+counter);
+        counter++;
 
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -170,34 +215,53 @@ public class S910BluetoothService extends Service {
             return false;
         }
 
-        ScanForDisto();
-        /* Try to find at least one Disto in paired BLE devices.*/
-        if (!FindPairedDisto()) {
-            Log.e(TAG, "Unable to find a paired DISTO device");
-            return false;
-        }
+//Hardcode the DISTO address here
+        mRemoteDistoAddress = DistoGattAttributes.S910Address;
 
         if (mRemoteDistoAddress != null) {
             mDistoDevice = mBluetoothAdapter.getRemoteDevice(mRemoteDistoAddress);
         } else {
             Log.i(TAG, "DISTO Pair Not Found");
+            return false;
         }
 
         if (mDistoDevice != null) {
+            Log.i(TAG, "name of mDistoDevice is "+mDistoDevice.getName());
             mDistoGatt = mDistoDevice.connectGatt(this, false, mGattCallback);
         } else {
             Log.i(TAG, "Disto Device not found.  Unable to connect.");
+            return false;
         }
 
         if (mDistoGatt != null) {
             if (mDistoGatt.discoverServices()) {
                 mDistoGattServices = mDistoGatt.getServices();
                 Log.i(TAG, "There are " + mDistoGattServices.size() + " services been found");
+                if(mDistoGattServices.size() < 1){
+//                    return false;
+                }
             } else {
-                Log.i(TAG, "Discover Services Failed");
+                Log.i(TAG, "Discover Services Failed, but I am still going to write and read");
+//                mDistoGatt.setCharacteristicNotification(characteristic, enabled);
+
+     //           return false;
             }
+
+            if(mDistoGatt.writeCharacteristic(mDistoGattCharacteristic_Command)){
+
+            }
+            else{
+                Log.i(TAG, "gatt write failed");
+            }
+            if(mDistoGatt.readCharacteristic(mDistoGattChar_DISTANCE)){
+
+            }else{
+                Log.i(TAG,"GATT read failed");
+            }
+
         } else {
             Log.i(TAG, "Disto Gatt not found. unable to connect.");
+            return false;
         }
 
         return true;
@@ -348,13 +412,17 @@ public class S910BluetoothService extends Service {
     }
 
     /* The one-in-all call to perform one measure*/
+
     public void Trigger() {
         if (DistoInitialize() != true) {
             return;
         }
-
-        readCharacteristic(mDistoGattService.getCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)));
-
+        if(mDistoGattService == null) {
+            Log.i(TAG, "mDistoGattService is NULL");
+            return;
+        }else {
+            readCharacteristic(mDistoGattService.getCharacteristic(UUID.fromString(DistoGattAttributes.UUID_DISTO_CHARACTERISTIC_DISTANCE)));
+        }
         if (mDistoGattCharacteristic_Command != null) {
             mDistoGattCharacteristic_Command.setValue(DistoGattAttributes.sDistoCommandTable[6].getBytes());
         }
@@ -381,4 +449,6 @@ public class S910BluetoothService extends Service {
             return S910BluetoothService.this;
         }
     }
+
+
 }
