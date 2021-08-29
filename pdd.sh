@@ -1,8 +1,8 @@
 #!/bin/bash
 
 CODE=$1
-DAILYSPECIAL="fTMHwmZWvz1Ebnm8 "
-ADBBIN=/c/opt/platform-tools/adb.exe
+DAILYSPECIAL="3Q1W7IvzeL8fs5tm "
+ADBBIN=adb
 DEVS=$($ADBBIN  devices|grep -v devices|awk '{print $1}')
 MAGICSTRINGS=($CODE $DAILYSPECIAL "PRRDq1ivvVeZa2Q9" "Jnz5a8KAvvOWCoi2" "q7KPpQfDTWvvIco5" "tlpcc9vBEv19LfWv")
 TIMEOUT=10
@@ -46,7 +46,11 @@ do
          "Baytrail02234F62") #Ramos, 1920x1200
             sleep $TIMEOUT
             sleep $TIMEOUT
+            sleep $TIMEOUT
+            sleep $TIMEOUT                        
             $ADBBIN -s $d shell input tap 600 1200
+            sleep $TIMEOUT
+            sleep $TIMEOUT
             sleep $TIMEOUT
         	;; 
          *)
