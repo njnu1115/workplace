@@ -30,7 +30,7 @@ do
         	$ADBBIN -s $d shell input tap 360 800
         	$ADBBIN -s $d shell input tap 360 850  
             sleep $TIMEOUT
-        	;;             
+        	;;
          "01adabdf234f675f") #mako 1280*800
             sleep $TIMEOUT
         	$ADBBIN -s $d shell input tap 400 800
@@ -47,7 +47,7 @@ do
             sleep $TIMEOUT
             sleep $TIMEOUT
             sleep $TIMEOUT
-            sleep $TIMEOUT                        
+            sleep $TIMEOUT
             $ADBBIN -s $d shell input tap 600 1200
             sleep $TIMEOUT
             sleep $TIMEOUT
