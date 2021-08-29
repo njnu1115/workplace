@@ -1,8 +1,8 @@
 #!/bin/bash
 
 CODE=$1
-DAILYSPECIAL="3Q1W7IvzeL8fs5tm "
-ADBBIN=adb
+DAILYSPECIAL="XO2HHO76vz8lJtOq"
+ADBBIN=/d/opt/platform-tools/adb.exe
 DEVS=$($ADBBIN  devices|grep -v devices|awk '{print $1}')
 MAGICSTRINGS=($CODE $DAILYSPECIAL "PRRDq1ivvVeZa2Q9" "Jnz5a8KAvvOWCoi2" "q7KPpQfDTWvvIco5" "tlpcc9vBEv19LfWv")
 TIMEOUT=10
@@ -48,7 +48,9 @@ do
             sleep $TIMEOUT
             sleep $TIMEOUT
             sleep $TIMEOUT
+            $ADBBIN -s $d shell input tap 600 1160
             $ADBBIN -s $d shell input tap 600 1200
+            $ADBBIN -s $d shell input tap 600 1240
             sleep $TIMEOUT
             sleep $TIMEOUT
             sleep $TIMEOUT
@@ -56,11 +58,11 @@ do
          *)
             sleep $TIMEOUT
             $ADBBIN -s $d shell input tap 540 1200
+            $ADBBIN -s $d shell input tap 540 1250
+            $ADBBIN -s $d shell input tap 540 1300
+            $ADBBIN -s $d shell input tap 540 1350
             sleep $TIMEOUT
         	;;
         esac
     done
-
-
-
 done
