@@ -3,8 +3,9 @@
 CODE=$1
 
 #step 1: check adb binary
-if [[ -n  "which adb 2>/dev/null" ]]
+if [[ -n  `which adb 2>/dev/null` ]]
 then
+    echo "default adb found"
     ADBBIN=adb
 elif [[ -x "/c/opt/platform/adb.exe" ]]
 then
@@ -15,7 +16,7 @@ then
 fi
 
 #step 2: check whether screen is on
-if [[ "$ADBBIN shell dumpsys power | grep mScreenOn"  =~ "false" ]]
+if [[ `$ADBBIN shell dumpsys power | grep mScreenOn 2>/dev/null`  =~ "false" ]]
 then
     echo "screen is off, turn it on"
     $ADBBIN shell input keyevent 26
