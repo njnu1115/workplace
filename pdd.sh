@@ -1,9 +1,30 @@
 #!/bin/bash
 
 CODE=$1
-DAILYSPECIAL="XO2HHO76vz8lJtOq"
-ADBBIN=/d/opt/platform-tools/adb.exe
+
+#step 1: check adb binary
+if [[ -n  "which adb 2>/dev/null" ]]
+then
+    ADBBIN=adb
+elif [[ -x "/c/opt/platform/adb.exe" ]]
+then
+    ADBBIN=/c/opt/platform-tools/adb.exe
+elif [[ -x "/d/opt/platform/adb.exe" ]]
+then
+    ADBBIN=/d/opt/platform-tools/adb.exe
+fi
+
+#step 2: check whether screen is on
+if [[ "$ADBBIN shell dumpsys power | grep mScreenOn"  =~ "false" ]]
+then
+    echo "screen is off, turn it on"
+    $ADBBIN shell input keyevent 26
+fi
+
+#step 3: list all connected devices
 DEVS=$($ADBBIN  devices|grep -v devices|awk '{print $1}')
+
+#step 4: iterate between all magic strings
 MAGICSTRINGS=($CODE $DAILYSPECIAL "PRRDq1ivvVeZa2Q9" "Jnz5a8KAvvOWCoi2" "q7KPpQfDTWvvIco5" "tlpcc9vBEv19LfWv")
 TIMEOUT=10
 
