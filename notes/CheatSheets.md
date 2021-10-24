@@ -6,3 +6,4 @@
 |tmux       |               |
 |screen     |               |
 |git        |               |
+|docker     |               |
