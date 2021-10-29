@@ -26,14 +26,13 @@ fi
 DEVS=$($ADBBIN  devices|grep -v devices|awk '{print $1}')
 
 #step 4: iterate between all magic strings
-MAGICSTRINGS=($CODE $DAILYSPECIAL "PRRDq1ivvVeZa2Q9" "Jnz5a8KAvvOWCoi2" "q7KPpQfDTWvvIco5" "tlpcc9vBEv19LfWv")
+MAGICSTRINGS=($CODE "PRRDq1ivvVeZa2Q9" "Jnz5a8KAvvOWCoi2" "q7KPpQfDTWvvIco5" "tlpcc9vBEv19LfWv")
 TIMEOUT=10
 
 for m in ${MAGICSTRINGS[@]}
 do
     for d in $DEVS
     do
-        $ADBBIN -s $d shell input keyevent 4
         $ADBBIN -s $d shell input keyevent 4
         $ADBBIN -s $d shell input keyevent 3
         $ADBBIN -s $d shell am start ca.zgrs.clipper/.Main
