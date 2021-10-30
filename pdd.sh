@@ -16,11 +16,14 @@ then
 fi
 
 #step 2: check whether screen is on
-if [[ `$ADBBIN shell dumpsys power | grep mScreenOn 2>/dev/null`  =~ "false" ]]
-then
-    echo "screen is off, turn it on"
-    $ADBBIN shell input keyevent 26
-fi
+for d in $DEVS
+do
+    if [[ `$ADBBIN -s $d shell dumpsys power | grep mScreenOn 2>/dev/null`  =~ "false" ]]
+    then
+        echo "screen is off, turn it on"
+        $ADBBIN -s $d shell input keyevent 26
+    fi
+done
 
 #step 3: list all connected devices
 DEVS=$($ADBBIN  devices|grep -v devices|awk '{print $1}')
