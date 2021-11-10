@@ -16,15 +16,17 @@ then
 fi
 
 #step 2: list all connected devices
-DEVS=$($ADBBIN  devices|grep -v devices|awk '{print $1}')
+DEVS=$($ADBBIN devices|awk ' match($2, "device") {print $1}')
 
 #step 2: check whether screen is on
 for d in $DEVS
 do
     if [[ `$ADBBIN -s $d shell dumpsys power | grep mScreenOn 2>/dev/null`  =~ "false" ]]
     then
-        echo "screen is off, turn it on"
+        echo "screen of $d is off, turn it on"
         $ADBBIN -s $d shell input keyevent 26
+    else
+        echo "screen of $d is on"
     fi
 done
 
@@ -39,9 +41,13 @@ do
     for d in $DEVS
     do
         $ADBBIN -s $d shell input keyevent 4
+        sleep 1
         $ADBBIN -s $d shell input keyevent 3
+        sleep 1
         $ADBBIN -s $d shell am start ca.zgrs.clipper/.Main
+        sleep 1
         $ADBBIN -s $d shell am broadcast -a clipper.set -e text $m
+        sleep 1
         $ADBBIN -s $d shell am start com.xunmeng.pinduoduo/.ui.activity.MainFrameActivity
     done
     sleep $TIMEOUT
