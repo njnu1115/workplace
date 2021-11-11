@@ -19,3 +19,6 @@
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
+
+*.png binary
+*.jar binary
