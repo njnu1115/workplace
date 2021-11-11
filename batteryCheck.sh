@@ -1,7 +1,5 @@
 #!/bin/bash
 
-CODE=$1
-
 #step 1: check adb binary
 if [[ -n  `which adb 2>/dev/null` ]]
 then
@@ -22,7 +20,7 @@ then
 fi
 
 #step 2: list all connected devices
-DEVS=$($ADBBIN  devices|grep -v devices|awk '{print $1}')
+DEVS=$($ADBBIN devices|awk ' match($2, "device") {print $1}')
 
 #step 4: 
 for d in $DEVS
