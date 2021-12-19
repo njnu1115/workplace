@@ -18,7 +18,7 @@ fi
 #step 2: list all connected devices
 DEVS=$($ADBBIN devices|awk ' match($2, "device") {print $1}')
 
-#step 2: check whether screen is on
+#step 3: check whether screen is on
 for d in $DEVS
 do
     if [[ `$ADBBIN -s $d shell dumpsys power | grep mScreenOn 2>/dev/null`  =~ "false" ]]
