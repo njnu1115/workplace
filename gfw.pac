@@ -7,7 +7,7 @@ function isMatchProxy(url, pattern) {
 }
 
 function FindProxyForURL(url, host) {
-    var Proxy = "SOCKS 192.168.16.64:3080;";
+    var Proxy = "SOCKS 192.168.16.64:3080";
     var list = ["onedrive.live.com","telegram","google","facebook","twitter","android","googleapis","googleusercontent","chrome","tumblr","t.co","youtu","blogspot","wordpress","wikipedia.org","wikileaks","dropbox","appspot","chromium","g.co","ggpht.com","gmail","goo.gl","gvt0.com","gvt1.com","picasaweb","akamai","blogger"];
     for(var i=0, l=list.length; i<l; i++) {
         if (isMatchProxy(url, list[i])) {
