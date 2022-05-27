@@ -5,7 +5,7 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
         body, html,#allmap {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
-        #l-map{height:500px;width:100%;}
+        #l-map{height:100%;width:100%;}
     </style>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=xd0Hw3a3cUdRB4Vvy6yOANc20xlUzN1u"></script>
     <title>百度地图画圆</title>
@@ -17,17 +17,16 @@
 <script type="text/javascript">
     // 百度地图API功能
     var map = new BMap.Map("l-map");
+    var point_batw = new BMap.Point(118.769963,31.985345);    
     var point_jaas = new BMap.Point(118.874097,32.041689);
-    var point_msp = new BMap.Point(119.015553,32.156089);	
     map.centerAndZoom(point_jaas, 13);
-    
-    
-    var circle1 = new BMap.Circle(point_jaas,12450);
+
+    var circle1 = new BMap.Circle(point_jaas,900);
     circle1.setFillColor("#A6CBA1"); //填充颜色
     circle1.setStrokeColor("#A6CBA1"); //边线颜色
     map.addOverlay(circle1);            //增加圆
 
-    var circle2 = new BMap.Circle(point_msp,30860);
+    var circle2 = new BMap.Circle(point_batw,11310);
     circle2.setFillColor("#A6CBA1"); //填充颜色
     circle2.setStrokeColor("#A6CBA1"); //边线颜色
     map.addOverlay(circle2); 
