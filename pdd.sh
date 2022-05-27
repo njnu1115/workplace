@@ -17,50 +17,42 @@ fi
 DEVS=$($ADBBIN devices|awk ' match($2, "device") {print $1}')
 
 #step 3: check whether screen is on
-for d in $DEVS
-do
-#    if [[ `$ADBBIN -s $d shell dumpsys power | grep mScreenOn 2>/dev/null`  =~ "false" ]]
-#    then
-#        echo "screen of $d is off, turn it on"
-        $ADBBIN -s $d shell input keyevent 224
-#    else
-#        echo "screen of $d is on"
-#    fi
-done
+funcCheckScreenOn(){
+    if [[ `$ADBBIN -s $1 shell dumpsys power | grep mScreenOn 2>/dev/null`  =~ "false" ]]
+    then
+        echo "screen of $1 is off, turn it on"
+        $ADBBIN -s $1 shell input keyevent 26
+    elif [[ `$ADBBIN -s $1 shell dumpsys power | grep mScreenOn 2>/dev/null`  =~ "true" ]]
+    then
+        echo "screen of $1 is already on"
+    elif [ $? -ne 0 ]
+    then
+        echo "screen of $1 is unknown, use keyevent 224 to turn it on"
+        $ADBBIN -s $1 shell input keyevent 224
+    else
+        echo "=====unknown situation, please contact administrator!!!====="
+    fi  
+}
 
 TIMEOUT=55
 
 #step 4: iterate all input strings
-if [ "$1" -gt 0 ] 2>/dev/null ;then 
-    echo "========== $1 is pure number============" 
-    for m in $*
-    do
-
-        for d in $DEVS
-        do
-            $ADBBIN -s $d shell am force-stop com.xunmeng.pinduoduo
-            $ADBBIN -s $d shell input keyevent 4
-            sleep 1
-            $ADBBIN -s $d shell input keyevent 3
-            sleep 1
-            $ADBBIN -s $d shell am start ca.zgrs.clipper/.Main
-            sleep 1
-            $ADBBIN -s $d shell am broadcast -a clipper.set -e text $m
-            sleep 1
-            $ADBBIN -s $d shell am start com.xunmeng.pinduoduo/.ui.activity.MainFrameActivity
-        done
-        sleep $TIMEOUT
-    done
-else
-    echo '=========This is ZhuShui==============='
+for m in $*
+do
     for d in $DEVS
     do
+        funcCheckScreenOn $d
+        echo "==== handling $m =========="
         $ADBBIN -s $d shell am force-stop com.xunmeng.pinduoduo
+        $ADBBIN -s $d shell input keyevent 4
+        sleep 1
+        $ADBBIN -s $d shell input keyevent 3
+        sleep 1
         $ADBBIN -s $d shell am start ca.zgrs.clipper/.Main
         sleep 1
-        $ADBBIN -s $d shell am broadcast -a clipper.set -e text $1
+        $ADBBIN -s $d shell am broadcast -a clipper.set -e text $m
         sleep 1
         $ADBBIN -s $d shell am start com.xunmeng.pinduoduo/.ui.activity.MainFrameActivity
     done
     sleep $TIMEOUT
-fi
+done
