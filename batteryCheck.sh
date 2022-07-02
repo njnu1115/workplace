@@ -25,6 +25,7 @@ DEVS=$($ADBBIN devices|awk ' match($2, "device") {print $1}')
 #step 4: 
 for d in $DEVS
 do
-    echo $d
+    echo "=================="$d"=================="
+    $ADBBIN -s $d shell getprop ro.product.model
     $ADBBIN -s $d shell dumpsys battery | grep level
 done
