@@ -25,7 +25,15 @@ DEVS=$($ADBBIN devices|awk ' match($2, "device") {print $1}')
 #step 4: 
 for d in $DEVS
 do
-    echo "=================="$d"=================="
-    $ADBBIN -s $d shell getprop ro.product.model
-    $ADBBIN -s $d shell dumpsys battery | grep level
+    model=$($ADBBIN -s $d shell getprop ro.product.model|tr -d '\n\r\ ')
+    level=$($ADBBIN -s $d shell dumpsys battery | grep 'level'|head -1|tr -d '\n\r')
+    temp=$($ADBBIN -s $d shell dumpsys battery | grep 'temperature'|tr -d '\n\r')
+    printf "% 16s\t" $d
+    printf "% 16s\t" $model
+    printf "%s|" $level
+    printf "%s" $temp
+    printf "\n"
+
+    $ADBBIN -s $d shell am force-stop com.tencent.mm
+    $ADBBIN -s $d shell am force-stop com.xunmeng.pinduoduo
 done
