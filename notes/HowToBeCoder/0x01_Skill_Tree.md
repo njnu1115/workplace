@@ -52,7 +52,6 @@
 - Audacity //开源音频处理
 - BaiduNetdisk  //百度网盘
 - cloudmusic //网易云音乐，运行的时候偶尔需要提权，拒绝掉再打开就消停了
-- foobar //听歌
 - FreeCommander XE //文件管理器
 - PDFill //PDF工具
 - platform-tools //安卓adb工具，建议安卓手机用户准备
@@ -75,8 +74,8 @@
 - PortableGit //开源的Windows版本的git
 - putty //开源ssh客户端
 - SumatraPDF //开源PDF epub mobi阅读器
-- syncthing //开源私有云同步工具
-- TightVNC
+- syncthing //开源私有云同步工具 
+- TightVNC //VNC远程控制工具
 - Transmission //开源BT下载工具
 - VcXsrv //开源X Server
 - vlc //开源视频播放器，对HEVC支持很好
@@ -124,3 +123,10 @@ TBD
 
 - 虚拟机/沙盒/容器 //隔离是优秀的运维实践方法
 TBD
+
+# 元知识
+
+有些知识如果不了解可能会无法理解世界是如何运转的
+- Hash
+- 非对称加密
+- 遗传进化算法
