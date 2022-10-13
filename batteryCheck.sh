@@ -26,11 +26,12 @@ DEVS=$($ADBBIN devices|awk ' match($2, "device") {print $1}')
 for d in $DEVS
 do
     model=$($ADBBIN -s $d shell getprop ro.product.model|tr -d '\n\r\ ')
-    level=$($ADBBIN -s $d shell dumpsys battery | grep 'level'|head -1|tr -d '\n\r')
+    level=$($ADBBIN -s $d shell dumpsys battery | grep 'level'|head -1 | tr -d '\n\r')
     temp=$($ADBBIN -s $d shell dumpsys battery | grep 'temperature'|tr -d '\n\r')
     printf "% 16s\t" $d
     printf "% 16s\t" $model
-    printf "%s|" $level
+    printf "%s" $level
+    printf "\t"
     printf "%s" $temp
     printf "\n"
 

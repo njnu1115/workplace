@@ -13,6 +13,12 @@ then
     ADBBIN=/d/opt/platform-tools/adb.exe
 fi
 
+$ADBBIN connect 192.168.16.250:33333
+$ADBBIN connect 192.168.16.252:33333
+$ADBBIN connect 192.168.16.253:33333
+$ADBBIN connect 192.168.16.254:33333
+$ADBBIN devices 
+
 #step 2: list all connected devices
 DEVS=$($ADBBIN devices|awk ' match($2, "device") {print $1}')
 
@@ -34,7 +40,7 @@ funcCheckScreenOn(){
     fi  
 }
 
-TIMEOUT=55
+TIMEOUT=180
 
 #step 4: iterate all input strings
 for m in $*
@@ -56,3 +62,9 @@ do
     done
     sleep $TIMEOUT
 done
+
+
+$ADBBIN disconnect 192.168.16.250:33333
+$ADBBIN disconnect 192.168.16.252:33333
+$ADBBIN disconnect 192.168.16.253:33333
+$ADBBIN disconnect 192.168.16.254:33333
