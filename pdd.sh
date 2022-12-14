@@ -13,9 +13,24 @@ then
     ADBBIN=/d/opt/platform-tools/adb.exe
 fi
 
-$ADBBIN connect 192.168.16.250:33333
-$ADBBIN connect 192.168.16.252:33333
-$ADBBIN connect 192.168.16.253:33333
+# HW-G610
+$ADBBIN connect 192.168.16.200:33333
+
+# XT897
+$ADBBIN connect 192.168.16.202:33333
+# XT897
+$ADBBIN connect 192.168.16.203:33333
+
+# Baytrail
+$ADBBIN connect 192.168.16.204:33333
+
+# ZUK-Z2
+$ADBBIN connect 192.168.16.249:33333
+# SM-T350
+# $ADBBIN connect 192.168.16.252:33333
+# SM-T350
+# $ADBBIN connect 192.168.16.253:33333
+# SM-C7010
 $ADBBIN connect 192.168.16.254:33333
 $ADBBIN devices 
 
@@ -64,7 +79,7 @@ do
 done
 
 
-$ADBBIN disconnect 192.168.16.250:33333
-$ADBBIN disconnect 192.168.16.252:33333
-$ADBBIN disconnect 192.168.16.253:33333
-$ADBBIN disconnect 192.168.16.254:33333
+#$ADBBIN disconnect 192.168.16.250:33333
+#$ADBBIN disconnect 192.168.16.252:33333
+#$ADBBIN disconnect 192.168.16.253:33333
+#$ADBBIN disconnect 192.168.16.254:33333
