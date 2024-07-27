@@ -5,7 +5,7 @@ SET ADBCMD=D:\opt64\scrcpy\adb.exe
 
 @REM set count=5
   
-@REM for %%dev in ("192.168.16.251","192.168.16.103") do (  
+@REM for %%dev in ("192.168.16.251","192.168.16.102") do (  
 
 @REM )
   

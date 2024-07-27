@@ -17,17 +17,19 @@
 <script type="text/javascript">
     // 百度地图API功能
     var map = new BMap.Map("l-map");
-    var point_batw = new BMap.Point(118.769963,31.985345);    
-    var point_jaas = new BMap.Point(118.874097,32.041689);
-    map.centerAndZoom(point_jaas, 13);
+    var point_bld = new BMap.Point(118.789686,32.047004);    
+    var point_lite = new BMap.Point(118.818586,32.018014);
+    map.centerAndZoom(point_bld, 13);
 
-    var circle1 = new BMap.Circle(point_jaas,900);
+    var circle2 = new BMap.Circle(point_bld,8060);
+    circle2.setFillColor("#A6CBA1"); //填充颜色
+    circle2.setStrokeColor("#A6CBA1"); //边线颜色
+    map.addOverlay(circle2); 
+
+    var circle1 = new BMap.Circle(point_lite,6380);
     circle1.setFillColor("#A6CBA1"); //填充颜色
     circle1.setStrokeColor("#A6CBA1"); //边线颜色
     map.addOverlay(circle1);            //增加圆
 
-    var circle2 = new BMap.Circle(point_batw,11310);
-    circle2.setFillColor("#A6CBA1"); //填充颜色
-    circle2.setStrokeColor("#A6CBA1"); //边线颜色
-    map.addOverlay(circle2); 
+
 </script>
