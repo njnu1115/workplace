@@ -1,35 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style type="text/css">
-        body, html,#allmap {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
-        #l-map{height:100%;width:100%;}
-    </style>
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=XavSGctuVGOQpe3Hn5pIh0TqMF47u1Nf"></script>
-    <title>百度地图画圆</title>
-</head>
-<body>
-    <div id="l-map"></div>
-</body>
-</html>
-<script type="text/javascript">
-    // 百度地图API功能
-    var map = new BMap.Map("l-map");
-    var point_bld = new BMap.Point(118.789686,32.047004);    
-    var point_lite = new BMap.Point(118.818586,32.018014);
-    map.centerAndZoom(point_bld, 13);
-
-    var circle2 = new BMap.Circle(point_bld,8060);
-    circle2.setFillColor("#A6CBA1"); //填充颜色
-    circle2.setStrokeColor("#A6CBA1"); //边线颜色
-    map.addOverlay(circle2); 
-
-    var circle1 = new BMap.Circle(point_lite,6380);
-    circle1.setFillColor("#A6CBA1"); //填充颜色
-    circle1.setStrokeColor("#A6CBA1"); //边线颜色
-    map.addOverlay(circle1);            //增加圆
+    <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=XavSGctuVGOQpe3Hn5pIh0TqMF47u1Nf"></script> -->
 
 
-</script>
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <title>地图单击拾取经纬度</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <style>
+        body,
+        html,
+        #container {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            font-family: "微软雅黑";
+        }
+        </style>
+        <script src="//api.map.baidu.com/api?type=webgl&v=1.0&ak=XavSGctuVGOQpe3Hn5pIh0TqMF47u1Nf"></script>
+    </head>
+    <body>
+        <div id="container"></div>
+    </body>
+    </html>
+    <script>
+    var map = new BMapGL.Map('container');
+    map.centerAndZoom(new BMapGL.Point(116.404, 39.928), 15);
+    map.enableScrollWheelZoom(true);
+    map.addEventListener('click', function (e) {
+        alert('点击位置经纬度：' + e.latlng.lng + ',' + e.latlng.lat);
+    });
+    </script>
+    
