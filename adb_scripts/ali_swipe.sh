@@ -38,18 +38,20 @@ echo found android devices $android_devices
 
 # alipays://platformapi/startapp?appId=20000160
 
-for (( i=1; i<=100; i++ )); do
-    echo "Starting iteration $i of 100..."
+for (( i=0; i<200; i++ )); do
+    echo "Starting iteration $i of 200..."
     for device in $android_devices;
     do
         if [ $((i % 7)) -eq 0 ]; then
-            adb -s $device shell input keyevent 4
-            sleep 1
-            adb -s $device shell input swipe 540 500 540 1600 89
-            sleep 1
+            adb -s $device shell am start alipays://platformapi/startapp?appId=20000160
+            sleep 16
+            adb -s $device shell input tap 950 525
+            sleep 8
+            # adb -s $device shell input swipe 540 500 540 1600 89
+            # sleep 1
             adb -s $device shell input tap 900 1200
             # adb -s $device shell input tap 900 1350
-            sleep 2
+            sleep 8
         fi
         SCREEN_WIDTH=$(adb -s $device shell wm size|awk -F"[ x\r]" '{print $3}')
         SCREEN_HEIGHT=$(adb -s $device shell wm size|awk -F"[ x\r]" '{print $4}')
