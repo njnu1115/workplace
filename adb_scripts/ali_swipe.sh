@@ -38,15 +38,13 @@ echo found android devices $android_devices
 
 # alipays://platformapi/startapp?appId=20000160
 
-for (( i=0; i<200; i++ )); do
-    echo "Starting iteration $i of 200..."
+for (( i=0; i<128; i++ )); do
+    echo "Starting iteration $i of 128..."
     for device in $android_devices;
     do
         if [ $((i % 7)) -eq 0 ]; then
-            adb -s $device shell am start alipays://platformapi/startapp?appId=20000160
+            adb -s $device shell am start -d 'alipays://platformapi/startapp?appId=68687805\&url=https%3A%2F%2Frender.alipay.com%2Fp%2Fyuyan%2F180020380000000023%2Fpoint-sign-in.html'
             sleep 16
-            adb -s $device shell input tap 950 525
-            sleep 8
             # adb -s $device shell input swipe 540 500 540 1600 89
             # sleep 1
             adb -s $device shell input tap 900 1200
