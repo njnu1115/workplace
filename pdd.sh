@@ -16,6 +16,9 @@ fi
 # HW-G610
 $ADBBIN connect 192.168.16.200:33333
 
+#mi 6x
+$ADBBIN connect 192.168.16.221:33333
+
 # XT897
 $ADBBIN connect 192.168.16.202:33333
 # XT897
@@ -25,13 +28,17 @@ $ADBBIN connect 192.168.16.203:33333
 $ADBBIN connect 192.168.16.204:33333
 
 # ZUK-Z2
-$ADBBIN connect 192.168.16.249:33333
+#$ADBBIN connect 192.168.16.249:33333
 # SM-T350
 # $ADBBIN connect 192.168.16.252:33333
 # SM-T350
 # $ADBBIN connect 192.168.16.253:33333
 # SM-C7010
 $ADBBIN connect 192.168.16.254:33333
+
+#Ghost
+$ADBBIN connect 192.168.16.42:33333
+
 $ADBBIN devices 
 
 #step 2: list all connected devices
