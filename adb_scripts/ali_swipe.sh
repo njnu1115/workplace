@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# 检查目录/d/opt是否存在
 if [ -d "/d/opt64/scrcpy" ]; then
     export PATH=$PATH:/d/opt64/scrcpy
 elif [ -d "/Users/cl/opt/platform-tools" ]; then
@@ -11,7 +10,7 @@ echo "Current PATH: $PATH"
 
 # adb devices|grep UASNW19611006167 || adb connect 192.168.16.251:28218 || adb connect localhost:33333
 # adb devices|grep 9c31ad62 || adb connect 192.168.16.102:5555 || adb connect 192.168.16.103:5555
-adb devices|grep UASNW19611006167 || adb connect localhost:33333
+adb devices|grep UASNW19611006167 || adb connect 192.168.16.251:28218 || adb connect localhost:33333
 
 adb devices|grep -w UASNW19611006167
 if [ $? -eq 0 ]; then
@@ -38,8 +37,8 @@ echo found android devices $android_devices
 
 # alipays://platformapi/startapp?appId=20000160
 
-for (( i=0; i<128; i++ )); do
-    echo "Starting iteration $i of 128..."
+for (( i=0; i<167; i++ )); do
+    echo "Starting iteration $i of 167..."
     for device in $android_devices;
     do
         if [ $((i % 7)) -eq 0 ]; then
@@ -55,9 +54,9 @@ for (( i=0; i<128; i++ )); do
         SCREEN_HEIGHT=$(adb -s $device shell wm size|awk -F"[ x\r]" '{print $4}')
         BX=`expr $SCREEN_WIDTH \* 2 / 5  + $((RANDOM %100))`  #bottom x
         UX=`expr $SCREEN_WIDTH \* 2 / 5  + $((RANDOM %100))`  #upper  x
-        BY=`expr $SCREEN_HEIGHT \* 4 / 5 + $((RANDOM %150))`  #bottom y
-        UY=`expr $SCREEN_HEIGHT / 5 + $((RANDOM %150))`  #upper  y
-        adb -s $device shell input swipe $BX $BY $UX $UY 256
+        BY=`expr $SCREEN_HEIGHT \* 17 / 47 + $((RANDOM %10))`  #bottom y
+        UY=`expr $SCREEN_HEIGHT \* 13 / 47 + $((RANDOM %10))`  #upper  y
+        adb -s $device shell input swipe $BX $BY $UX $UY 512
         TEMPERATURE=$(adb -s $device shell dumpsys battery | awk '/^  temperature/ {print $2}')
         if [ "$TEMPERATURE" -gt 420 ]; 
         then
