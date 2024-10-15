@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner and Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        video, canvas {
+            display: none;
+        }
+        #qr-canvas {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Scanner and Generator</h1>
+
+    <!-- Video element to display camera stream -->
+    <video id="video" autoplay></video>
+    
+    <!-- Canvas for QR scanning -->
+    <canvas id="qr-canvas"></canvas>
+    
+    <!-- Display scanned content -->
+    <p>Scanned QR Code Content: <span id="qr-content">None</span></p>
+    
+    <!-- Div to display generated QR code -->
+    <div id="generated-qr"></div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('qr-canvas');
+        const qrContentElement = document.getElementById('qr-content');
+        const generatedQR = document.getElementById('generated-qr');
+        const ctx = canvas.getContext('2d');
+        
+        // Access the camera
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+                scanQRCode();
+            })
+            .catch(err => {
+                alert('Error accessing camera: ' + err);
+            });
+
+        // Scan for QR codes
+        function scanQRCode() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (qrCode) {
+                qrContentElement.textContent = qrCode.data;
+                generateQRCode(qrCode.data);
+            } else {
+                requestAnimationFrame(scanQRCode);
+            }
+        }
+
+        // Generate a new QR code based on scanned data
+        function generateQRCode(content) {
+            generatedQR.innerHTML = ""; // Clear previous QR code
+            new QRCode(generatedQR, {
+                text: content,
+                width: 128,
+                height: 128
+            });
+        }
+    </script>
+</body>
+</html>
