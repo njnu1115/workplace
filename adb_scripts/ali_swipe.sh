@@ -46,7 +46,7 @@ for (( i=0; i<167; i++ )); do
             sleep 16
             # adb -s $device shell input swipe 540 500 540 1600 89
             # sleep 1
-            adb -s $device shell input tap 900 1200
+            adb -s $device shell input tap 900 1250
             # adb -s $device shell input tap 900 1350
             sleep 8
         fi
