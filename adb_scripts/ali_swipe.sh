@@ -10,7 +10,7 @@ echo "Current PATH: $PATH"
 
 # adb devices|grep UASNW19611006167 || adb connect 192.168.16.251:28218 || adb connect localhost:33333
 # adb devices|grep 9c31ad62 || adb connect 192.168.16.102:5555 || adb connect 192.168.16.103:5555
-# adb devices|grep UASNW19611006167 || adb connect 192.168.16.134:33333 || adb connect localhost:33333
+adb devices|grep UASNW19611006167 || adb connect 192.168.16.210:33333 || adb connect localhost:33333
 
 adb devices|grep -w UASNW19611006167
 if [ $? -eq 0 ]; then
@@ -28,7 +28,8 @@ fi
 #fi
 
 # android_devices=$(adb devices | awk '/^[^ ]+device$/ {print $1}')
-android_devices=662846a7
+#android_devices=662846a7
+android_devices=192.168.16.210:33333
 echo found android devices $android_devices
 
 # for device in $android_devices;

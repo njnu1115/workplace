@@ -1,0 +1,4 @@
+
+"arn:aws:iam::0000:role/signal"
+
+test
