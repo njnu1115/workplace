@@ -1,0 +1,27 @@
+---
+name: Test Action on branch instead of main
+on:
+  push:
+    branches: [master]
+jobs:
+  sync-and-replace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Replace AWS IAM Role ARN and Account ID for China Configuration
+        run: |
+          find tobesed/ -type f -exec sed -i 's|"arn:aws:iam::0000:role/signal"|"arn:aws-cn:iam::0000:role/prod"|g' {} +
+      - name: Commit and Push Updated Configurations to China Branch
+        run: |-
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout qxzxr-sed-chn-hook || git checkout -B qxzxr-sed-chn-hook
+          git add .
+          if git commit -m "chore: sync with main and sed"; then
+            git push origin qxzxr-sed-chn-hook --force-with-lease
+          else
+            echo "No changes to commit."
+          fi
