@@ -75,7 +75,7 @@ BLACKLIST = [
 "下单"
 ]
 
-for loop_count in range(40):
+for loop_count in range(48):
     print(f"Loop {loop_count + 1}")
     try:
         button_elements = d.xpath(f'//*[@text=" 去完成"]').all()
@@ -117,7 +117,7 @@ for loop_count in range(40):
         print(f"Click failed: {e}, falling back to shell")
         d.shell(f"am start -a android.intent.action.VIEW -d '{url}'")
         time.sleep(2)
-        d.swipe(540, 1600, 540, 700)
+        d.swipe(540, 1600, 540, 1300)
         time.sleep(5)
         continue
 
