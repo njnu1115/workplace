@@ -19,7 +19,7 @@ except Exception as e:
     print(f"Connected but device not responding: {e}", file=sys.stderr)
     sys.exit(1)
 
-print(f"Connected to device: {info.get("productName")}")
+print(f"Connected to device: {info.get('productName')}")
 
 url = "alipays://platformapi/startapp?appId=68687805&url=https%3A%2F%2Frender.alipay.com%2Fp%2Fyuyan%2F180020380000000023%2Fpoint-sign-in.html"
 
@@ -67,13 +67,18 @@ GRAYLIST = [
 ]  # Add your whitelist items here
 
 BLACKLIST = [
+"下1单",
+"下单",
+"体验年领5.21%的年金",
+"体验省税福利",
+"加入商家群组",
+"尽享温哥华非凡之旅",
+"打卡记录每日好心情",
+"玩",
 "逛一逛快手",
-"玩向僵尸开炮通新关1次",
 "逛一逛闲鱼APP",
 "逛头条极速版刷视频",
-"邀请好友签到领积分",
-"下1单",
-"下单"
+"邀请好友签到领积分"
 ]
 
 for loop_count in range(48):
@@ -111,7 +116,7 @@ for loop_count in range(48):
 
         for i in range(5):
             d.swipe(500, 1000, 500, 500)
-            time.sleep(3)
+            time.sleep(4)
         d.press("back")
         time.sleep(2)
     except Exception as e:
