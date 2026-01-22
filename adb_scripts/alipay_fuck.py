@@ -31,6 +31,13 @@ for loop_count in range(20):
         task_elements = d.xpath(f'//*[@text=" 去完成"]/../../preceding-sibling::*[1]/*[1]/*[2]').all()
         print(f"Found {len(button_elements)} '去完成' buttons")
         print(f"Found {len(task_elements)} tasks")
+
+        if len(button_elements) == 0:
+            button_elements = d.xpath(f'//*[@text="+5"]').all()
+            task_elements = d.xpath(f'//*[@text="+5"]/../../preceding-sibling::*[1]/*[1]/*[2]').all()
+        print(f"Found {len(button_elements)} '+5' buttons")
+        print(f"Found {len(task_elements)} tasks")
+
         if len(button_elements) == 0 or len(task_elements) == 0:
             raise Exception("Required elements not found")
         elif len(button_elements) != len(task_elements):
