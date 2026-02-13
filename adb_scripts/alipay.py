@@ -24,10 +24,10 @@ print(f"Connected to device: {info.get('productName')}")
 url = "alipays://platformapi/startapp?appId=68687805&url=https%3A%2F%2Frender.alipay.com%2Fp%2Fyuyan%2F180020380000000023%2Fpoint-sign-in.html"
 
 # Whitelist of tasks to allow
+
 WHITELIST_CLICK = [
     "浏览",
     "看5秒视频领积分",
-    "观看15秒视频领积分",
     "逛15秒安全知识",
     "逛15秒支付有礼领红包",
     "逛15秒芝麻租赁频道",
@@ -98,7 +98,7 @@ def restart_from_url():
     time.sleep(2)
 
 
-for loop_count in range(48):
+for loop_count in range(64):
     print(f"Loop {loop_count + 1}")
     time.sleep(2)
     button_elements = d.xpath(f'//*[@text="赚更多积分"]').all()
@@ -147,7 +147,7 @@ for loop_count in range(48):
             elif any(whitelist_item in task_text for whitelist_item in WHITELIST_CLICK):
                 button_elements[i].click()
                 print(f"Clicked button for task: {task_text}")
-                time.sleep(16)  # Small delay between clicks
+                time.sleep(16)
                 d.press("back")
                 clicked = True
                 break
@@ -155,10 +155,11 @@ for loop_count in range(48):
                 print(f"Task '{task_text}' is in blacklist, skipping...")
             else:
                 button_elements[i].click()
-                clicked = True
                 print(f"Clicked button for task: {task_text}")
                 BLACKLIST.append(task_text)
-                time.sleep(2)  # Small delay between clicks
+                time.sleep(16)
+                d.press("back")
+                clicked = True
                 break
         if not clicked:
             button_elements = d.xpath(f'//*[@text="换一换"]').all()
